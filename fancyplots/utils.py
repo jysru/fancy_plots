@@ -2,17 +2,25 @@ import numpy as np
 from matplotlib.colors import hsv_to_rgb
 
 
-def complex_to_hsv(z, rmin, rmax, hue_start=0):
-    # get amplidude of z and limit to [rmin, rmax]
+def complex_to_hsv(z: np.ndarray, rmin: float = None, rmax: float = None, hue_start: int = 0):
+    # Check if arguments are not None, else assign default values
+    rmin = rmin if rmin is not None else 0
+    rmax = rmax if rmax is not None else np.max(np.abs(z))
+
+    # Get amplitude of z and limit to [rmin, rmax]
     amp = np.abs(z)
     amp = np.where(amp < rmin, rmin, amp)
     amp = np.where(amp > rmax, rmax, amp)
+
+    # Convert phase to degrees and offset to hue_start
     ph = np.angle(z, deg=True) + hue_start
-    # HSV are values in range [0,1]
+
+    # Build HSV arrays (HSV are values in range [0,1])
     h = (ph % 360) / 360
     s = 0.85 * np.ones_like(h)
     v = (amp - rmin) / (rmax - rmin)
-    return hsv_to_rgb(np.dstack((h,s,v)))
+
+    return hsv_to_rgb(np.dstack((h, s, v)))
 
 
 def stitch_tm(tm, weights, nans: bool = False, crop_outputs: bool = False, cropped_length: int = -1) -> np.ndarray:

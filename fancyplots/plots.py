@@ -3,23 +3,32 @@ import matplotlib.pyplot as plt
 from fancyplots.utils import complex_to_hsv
 
 
-def complex_imshow(field, figsize: tuple[int,int] = (15,5), remove_ticks: bool = False, ref: tuple[int,int] = None):
-    if ref is None:
-        ref = np.argmax(np.abs(field))
-        ref = np.unravel_index(ref, field.shape)
+def complex_colormap(points: int = 100, hue_start: int = 0):
+    mod = np.arange(0, points) / points
+    phi = np.arange(0, points) / points * 2 * np.pi
+    X, Y = np.meshgrid(mod , phi)
+    bar = np.abs(X) * np.exp(1j * Y)
+    return complex_to_hsv(bar, hue_start=hue_start)
 
-    fig, axs = plt.subplots(1, 3, figsize=figsize)
-    pl0 = axs[0].imshow(np.abs(field), cmap='gray')
-    pl1 = axs[1].imshow(np.angle(field * np.exp(-1j * np.angle(field[ref[0], ref[1]]))), cmap='hsv')
-    pl2 = axs[2].imshow(complex_to_hsv(field * np.exp(-1j * np.angle(field[ref[0], ref[1]])), rmin=0, rmax=np.max(np.abs(field))))
-    pls = [pl0, pl1, pl2]
 
-    _ = axs[0].set_title("Amplitude")
-    _ = axs[1].set_title("Phase")
-    _ = axs[2].set_title("Complex field")
+def complex_imshow(complex_array: np.ndarray,
+                   colorbar: bool = True,
+                   figsize: tuple[int,int] = (15,5),
+                   ):
+    fig = plt.figure(figsize=figsize)
+    ax = plt.gca()
+    ax.imshow(complex_to_hsv(complex_array))
 
-    if remove_ticks:
-        _ = [axs[i].set_xticks([]) for i in range(len(axs))]
-        _ = [axs[i].set_yticks([]) for i in range(len(axs))]
-    
-    return (fig, axs, pls)
+    if colorbar:
+        cbar_img = complex_colormap()
+        cbar_ax = fig.add_axes([ax.get_position().x1+0.01,
+                                ax.get_position().y0,
+                                0.03,
+                                ax.get_position().height])
+        cbar_ax.imshow(cbar_img, aspect=15)
+        cbar_ax.set_xticks([0, 99], labels=['0', '1'], fontsize=10)
+        cbar_ax.set_yticks([0, 50, 99], labels=[r'$+\pi$', '0', r'$-\pi$'], fontsize=10)
+        cbar_ax.xaxis.set_ticks_position('bottom')
+        cbar_ax.yaxis.set_ticks_position('right')
+
+    return fig, ax

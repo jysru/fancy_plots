@@ -1,0 +1,7 @@
+setuptools
+h5py
+matplotlib
+mat73
+numpy
+pytest
+scipy

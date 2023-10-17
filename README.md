@@ -5,7 +5,7 @@ Fancy plots to make your life easier!
 
 ## Installation
 
-Use in virtual environment or you own environment:
+Use in virtual environment or in your own environment:
 
 ```bash
 $ python -m pip install -r requirements.txt
